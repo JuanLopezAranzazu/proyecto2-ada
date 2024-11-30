@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 import timeit
+from utils.solver import solve_minizinc_problem
 
 class App:
   def __init__(self, root):
@@ -88,17 +89,17 @@ class App:
           # mostrar los datos en el Text widget
           self.text_results.delete(1.0, tk.END)
           self.text_results.insert(tk.END, f"Programas existentes: {programs}\n")
-          self.text_results.insert(tk.END, f"Tamaño de la matriz: {n}\n")
-          self.text_results.insert(tk.END, f"Programas nuevos: {new_programs}\n")
-          self.text_results.insert(tk.END, f"\nPosiciones de los programas existentes:\n")
+          self.text_results.insert(tk.END, f"Tamaño de las matrices: {n}\n")
+          self.text_results.insert(tk.END, f"Cantidad de nuevos programas: {new_programs}\n")
+          self.text_results.insert(tk.END, f"Coordenadas de los programas existentes:\n")
           for i in range(programs):
             self.text_results.insert(tk.END, f"{positions[i]}\n")
 
-          self.text_results.insert(tk.END, f"\nMatriz de población:\n")
+          self.text_results.insert(tk.END, f"\nMatriz de segmento de población:\n")
           for i in range(n):
             self.text_results.insert(tk.END, f"{population[i]}\n")
           
-          self.text_results.insert(tk.END, f"\nMatriz de empresas:\n")
+          self.text_results.insert(tk.END, f"\nMatriz de entorno empresarial:\n")
           for i in range(n):
             self.text_results.insert(tk.END, f"{enterprise[i]}\n")
 
@@ -117,8 +118,9 @@ class App:
       return
 
     start_time = timeit.default_timer()
-    result = []
+    result = solve_minizinc_problem(solver, "./model.mzn", n, population, enterprise, programs, positions, new_programs)
     elapsed_time = timeit.default_timer() - start_time
+    print(result)
 
     # mostrar resultados en el Text widget
     self.text_results.delete(1.0, tk.END)

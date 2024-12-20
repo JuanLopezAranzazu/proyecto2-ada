@@ -45,3 +45,11 @@ Para correr el programa puedes ejecutar el siguiente comando:
 ```bash
 python main.py
 ```
+
+### Correr las pruebas
+
+Para correr las pruebas del modelo minizinc, ejecutar el siguiente comando:
+
+```bash
+python -m unittest ./tests/test_solver.py
+```

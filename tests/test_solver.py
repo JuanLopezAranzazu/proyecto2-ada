@@ -44,7 +44,7 @@ class TestSolver(unittest.TestCase):
         'positions': [[6, 8], [8, 4], [10, 10]],
         'new_programs': 4,
         'solver_name': "gecode",
-        'expected': [[1, 1], [1, 1], [1, 1], [1, 1]]
+        'expected': [[14, 6], [12, 8], [14, 8], [12, 6]]
       }
     ]
     

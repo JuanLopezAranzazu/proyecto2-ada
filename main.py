@@ -107,37 +107,42 @@ class App:
       self.text_results.insert(tk.END, "Error: Cargar archivo primero\n")
       return
 
-    start_time = timeit.default_timer()
-    result = solve_minizinc_problem(
-      solver,
-      "./model.mzn",
-      self.n,
-      self.population,
-      self.enterprise,
-      self.programs,
-      self.positions,
-      self.new_programs
-    )
-    elapsed_time = timeit.default_timer() - start_time
+    try:
+      start_time = timeit.default_timer()
+      result = solve_minizinc_problem(
+        solver,
+        "./model.mzn",
+        self.n,
+        self.population,
+        self.enterprise,
+        self.programs,
+        self.positions,
+        self.new_programs
+      )
+      elapsed_time = timeit.default_timer() - start_time
 
-    if not result:
-      self.text_results.insert(tk.END, "No se encontró solución\n")
+      if not result:
+        self.text_results.insert(tk.END, "No se encontró solución\n")
+        return
+      
+      # obtener las nuevas coordenadas de los programas
+      new_positions = result["new_positions"]
+
+      # mostrar resultados en el Text widget
+      self.text_results.delete(1.0, tk.END)
+      self.text_results.insert(tk.END, f"Coordenadas de los nuevos programas:\n")
+      
+      for position in new_positions:
+        self.text_results.insert(tk.END, f"{position}\n")
+
+      self.text_results.insert(tk.END, f"\nTiempo de ejecución: {elapsed_time:.10f} segundos\n")
+
+      # Guardar los resultados en un archivo
+      self.save_results(new_positions)
+    except Exception as e:
+      self.text_results.delete(1.0, tk.END)
+      self.text_results.insert(tk.END, f"Error al ejecutar el solver: {e}\n")
       return
-    
-    # obtener las nuevas coordenadas de los programas
-    new_positions = result["new_positions"]
-
-    # mostrar resultados en el Text widget
-    self.text_results.delete(1.0, tk.END)
-    self.text_results.insert(tk.END, f"\nCoordenadas de los nuevos programas:\n")
-    
-    for position in new_positions:
-      self.text_results.insert(tk.END, f"{position}\n")
-
-    self.text_results.insert(tk.END, f"\nTiempo de ejecución: {elapsed_time:.10f} segundos\n")
-
-    # Guardar los resultados en un archivo
-    self.save_results(new_positions)
 
   def save_results(self, result_data):
     file_path = filedialog.asksaveasfilename(filetypes=[("Text Files", "*.txt")])

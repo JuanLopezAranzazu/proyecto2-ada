@@ -40,5 +40,5 @@ def solve_minizinc_problem(solver_name, model_path, n, population, enterprise, p
 
     return result
   except Exception as e:
-    print(f"Error al resolver el problema: {e}")
-    return None
+    # Lanzar una excepción si ocurre un error
+    raise Exception(f"Error al resolver el problema: {e}")

@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter import filedialog
 import timeit
 from utils.solver import solve_minizinc_problem
+from utils.file_manager import load_data_from_file, save_results_to_file
 
 class App:
   def __init__(self, root):
@@ -12,6 +13,12 @@ class App:
 
     # Variables
     self.solvers = ["gecode", "chuffed", "ortools"]
+    self.n = None
+    self.population = None
+    self.enterprise = None
+    self.positions = None
+    self.new_programs = None
+    self.programs = None
 
     self.create_widgets()
 
@@ -59,73 +66,90 @@ class App:
   def load_file(self):
     file_path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
     if file_path:
-      with open(file_path) as file:
-        lines = file.readlines()
+      try:
+        population, enterprise, positions, new_programs, programs, n = load_data_from_file(file_path)
+        self.population = population
+        self.enterprise = enterprise
+        self.positions = positions
+        self.new_programs = new_programs
+        self.programs = programs
+        self.n = n
 
-        try:
-          global population, enterprise, programs, positions, new_programs, n
+        # mostrar los datos en el Text widget
+        self.text_results.delete(1.0, tk.END)
+        self.text_results.insert(tk.END, f"Programas existentes: {programs}\n")
+        self.text_results.insert(tk.END, f"Tamaño de las matrices: {n}\n")
+        self.text_results.insert(tk.END, f"Cantidad de nuevos programas: {new_programs}\n")
 
-          # matrices n*n
-          population = []
-          enterprise = []
-          positions = []
+        self.text_results.insert(tk.END, f"Coordenadas de los programas existentes:\n")
+        for i in range(programs):
+          self.text_results.insert(tk.END, f"{positions[i]}\n")
 
-          # cantidad de programas que ya existen
-          programs = int(lines[0].strip())
+        self.text_results.insert(tk.END, f"\nMatriz de segmento de población:\n")
+        for i in range(n):
+          self.text_results.insert(tk.END, f"{population[i]}\n")
+        
+        self.text_results.insert(tk.END, f"\nMatriz de entorno empresarial:\n")
+        for i in range(n):
+          self.text_results.insert(tk.END, f"{enterprise[i]}\n")
 
-          for i in range(programs):
-            positions.append(list(map(int, lines[i+1].strip().split())))
-
-          # tamaño de la matriz
-          n = int(lines[programs+1].strip())
-
-          for i in range(n):
-            population.append(list(map(int, lines[programs+2+i].strip().split())))
-            enterprise.append(list(map(int, lines[programs+2+n+i].strip().split())))
-
-          # cantidad de nuevos programas
-          new_programs = int(lines[programs+2+2*n].strip())
-
-          # mostrar los datos en el Text widget
-          self.text_results.delete(1.0, tk.END)
-          self.text_results.insert(tk.END, f"Programas existentes: {programs}\n")
-          self.text_results.insert(tk.END, f"Tamaño de las matrices: {n}\n")
-          self.text_results.insert(tk.END, f"Cantidad de nuevos programas: {new_programs}\n")
-          self.text_results.insert(tk.END, f"Coordenadas de los programas existentes:\n")
-          for i in range(programs):
-            self.text_results.insert(tk.END, f"{positions[i]}\n")
-
-          self.text_results.insert(tk.END, f"\nMatriz de segmento de población:\n")
-          for i in range(n):
-            self.text_results.insert(tk.END, f"{population[i]}\n")
-          
-          self.text_results.insert(tk.END, f"\nMatriz de entorno empresarial:\n")
-          for i in range(n):
-            self.text_results.insert(tk.END, f"{enterprise[i]}\n")
-
-        except Exception as e:
-          self.text_results.delete(1.0, tk.END)
-          self.text_results.insert(tk.END, f"Error al cargar el archivo: {e}\n")
-          return
+      except Exception as e:
+        self.text_results.delete(1.0, tk.END)
+        self.text_results.insert(tk.END, f"Error al cargar el archivo: {e}\n")
+        return
 
   def run_solver(self):
     solver = self.combo_solvers.get()
 
     # validar que los datos estén cargados
-    if any(not globals().get(var) for var in ["population", "enterprise", "positions", "new_programs", "programs", "n"]):
+    if not self.population or not self.enterprise or not self.positions or not self.new_programs or not self.programs or not self.n:
       self.text_results.delete(1.0, tk.END)
       self.text_results.insert(tk.END, "Error: Cargar archivo primero\n")
       return
 
     start_time = timeit.default_timer()
-    result = solve_minizinc_problem(solver, "./model.mzn", n, population, enterprise, programs, positions, new_programs)
+    result = solve_minizinc_problem(
+      solver,
+      "./model.mzn",
+      self.n,
+      self.population,
+      self.enterprise,
+      self.programs,
+      self.positions,
+      self.new_programs
+    )
     elapsed_time = timeit.default_timer() - start_time
-    print(result)
+
+    if not result:
+      self.text_results.insert(tk.END, "No se encontró solución\n")
+      return
+    
+    # obtener las nuevas coordenadas de los programas
+    new_positions = result["new_positions"]
 
     # mostrar resultados en el Text widget
     self.text_results.delete(1.0, tk.END)
-    self.text_results.insert(tk.END, result)
+    self.text_results.insert(tk.END, f"\nCoordenadas de los nuevos programas:\n")
+    
+    for position in new_positions:
+      self.text_results.insert(tk.END, f"{position}\n")
+
     self.text_results.insert(tk.END, f"\nTiempo de ejecución: {elapsed_time:.10f} segundos\n")
+
+    # Guardar los resultados en un archivo
+    self.save_results(new_positions)
+
+  def save_results(self, result_data):
+    file_path = filedialog.asksaveasfilename(filetypes=[("Text Files", "*.txt")])
+    # poner la extensión si no se proporciona
+    if not file_path.endswith(".txt"):
+      file_path += ".txt"
+    if file_path:
+      try:
+        save_results_to_file(file_path, result_data)
+
+      except Exception as e:
+        self.text_results.insert(tk.END, f"Error al guardar el archivo: {e}\n")
 
 if __name__ == "__main__":
   root = tk.Tk()

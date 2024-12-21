@@ -12,7 +12,7 @@ class App:
     self.root.geometry("800x500")
 
     # Variables
-    self.solvers = ["gecode", "chuffed", "ortools"]
+    self.solvers = ["gecode", "chuffed", "cp-sat"]
     self.n = None
     self.population = None
     self.enterprise = None
@@ -122,6 +122,7 @@ class App:
       elapsed_time = timeit.default_timer() - start_time
 
       if not result:
+        self.text_results.delete(1.0, tk.END)
         self.text_results.insert(tk.END, "No se encontró solución\n")
         return
       

@@ -1,5 +1,6 @@
 import unittest
 from utils.solver import solve_minizinc_problem
+from utils.mzn_parser import extract_list, get_coordinates
 
 class TestSolver(unittest.TestCase):
   def test_solve(self):
@@ -44,7 +45,7 @@ class TestSolver(unittest.TestCase):
         'positions': [[6, 8], [8, 4], [10, 10]],
         'new_programs': 4,
         'solver_name': "gecode",
-        'expected': [[14, 6], [12, 8], [14, 8], [12, 6]]
+        'expected': [(14, 6), (12, 8), (14, 8), (12, 6)]
       },
       {
         'n': 10,
@@ -76,7 +77,7 @@ class TestSolver(unittest.TestCase):
         'positions': [[2, 3], [4, 1], [5, 5]],
         'new_programs': 4,
         'solver_name': "gecode",
-        'expected': [[7, 9], [5, 9], [3, 9], [3, 5]]
+        'expected': [(7, 9), (5, 9), (3, 9), (3, 5)]
       },
       {
         'n': 18,
@@ -124,28 +125,39 @@ class TestSolver(unittest.TestCase):
         'positions': [[3, 4], [7, 10], [12, 15], [14, 8], [17, 5]],
         'new_programs': 6,
         'solver_name': "chuffed",
-        'expected': [[15, 18], [5, 14], [16, 10], [17, 18], [7, 18], [1, 18]]
+        'expected': [(15, 18), (5, 14), (16, 10), (17, 18), (7, 18), (1, 18)]
       }
     ]
     
     for test_case in test_cases:
-      result = solve_minizinc_problem(
-        test_case['solver_name'],
-        "./model.mzn",
-        test_case['n'],
-        test_case['population'],
-        test_case['enterprise'],
-        test_case['programs'],
-        test_case['positions'],
-        test_case['new_programs']
-      )
+      with self.subTest(test_case=test_case):
+        try:
+          result = solve_minizinc_problem(
+              test_case['solver_name'],
+              "./model.mzn",
+              test_case['n'],
+              test_case['population'],
+              test_case['enterprise'],
+              test_case['programs'],
+              test_case['positions'],
+              test_case['new_programs']
+          )
 
-      if not result:
-        self.fail("No se encontró solución")
+          if not result:
+            self.fail(f"No se encontró solución para el caso: {test_case}")
 
-      new_positions = result["new_positions"]
+          result_str = str(result)
 
-      self.assertCountEqual(new_positions, test_case['expected'])
+          new_positions = get_coordinates(extract_list("new_positions", result_str))
+
+          if new_positions is None:
+            self.fail(f"El resultado no contiene 'new_positions' para el caso: {test_case}")
+
+          self.assertCountEqual(new_positions, test_case['expected'], 
+                                msg=f"Las posiciones no coinciden para el caso: {test_case}")
+
+        except Exception as e:
+          self.fail(f"Error durante la prueba del caso {test_case}: {e}")
 
 if __name__ == '__main__':
   unittest.main()

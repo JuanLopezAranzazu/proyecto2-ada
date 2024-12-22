@@ -4,6 +4,7 @@ from tkinter import filedialog
 import timeit
 from utils.solver import solve_minizinc_problem
 from utils.file_manager import load_data_from_file, save_results_to_file
+from utils.mzn_parser import extract_list, extract_value, get_coordinates
 
 class App:
   def __init__(self, root):
@@ -126,12 +127,27 @@ class App:
         self.text_results.insert(tk.END, "No se encontró solución\n")
         return
       
-      # obtener las nuevas coordenadas de los programas
-      new_positions = result["new_positions"]
+      result_str = str(result)
+      
+      # extraer los resultados
+      new_positions = get_coordinates(extract_list("new_positions", result_str))
+      positions = get_coordinates(extract_list("positions", result_str))
+      existing_score = extract_value("existing_score", result_str)
+      final_score = extract_value("final_score", result_str)
+      total_score = extract_value("total_score", result_str)
 
       # mostrar resultados en el Text widget
       self.text_results.delete(1.0, tk.END)
-      self.text_results.insert(tk.END, f"Coordenadas de los nuevos programas:\n")
+      self.text_results.insert(tk.END, f"Ganancia de los programas existentes: {existing_score}\n")
+      self.text_results.insert(tk.END, f"Ganancia de los nuevos programas: {total_score}\n")
+      self.text_results.insert(tk.END, f"Ganancia total: {final_score}\n")
+
+      self.text_results.insert(tk.END, f"\nCoordenadas de los programas existentes:\n")
+     
+      for position in positions:
+        self.text_results.insert(tk.END, f"{position}\n")
+
+      self.text_results.insert(tk.END, f"\nCoordenadas de los nuevos programas:\n")
       
       for position in new_positions:
         self.text_results.insert(tk.END, f"{position}\n")
@@ -139,23 +155,12 @@ class App:
       self.text_results.insert(tk.END, f"\nTiempo de ejecución: {elapsed_time:.10f} segundos\n")
 
       # Guardar los resultados en un archivo
-      self.save_results(new_positions)
+      save_results_to_file("results.txt", new_positions, positions, existing_score, total_score, final_score)
+
     except Exception as e:
       self.text_results.delete(1.0, tk.END)
       self.text_results.insert(tk.END, f"Error al ejecutar el solver: {e}\n")
       return
-
-  def save_results(self, result_data):
-    file_path = filedialog.asksaveasfilename(filetypes=[("Text Files", "*.txt")])
-    # poner la extensión si no se proporciona
-    if not file_path.endswith(".txt"):
-      file_path += ".txt"
-    if file_path:
-      try:
-        save_results_to_file(file_path, result_data)
-
-      except Exception as e:
-        self.text_results.insert(tk.END, f"Error al guardar el archivo: {e}\n")
 
 if __name__ == "__main__":
   root = tk.Tk()

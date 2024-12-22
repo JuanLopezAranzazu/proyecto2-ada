@@ -11,7 +11,7 @@ int: new_programs; % cantidad de nuevos programas a ubicar
 % coordenadas de los nuevos programas
 array[1..new_programs, 1..2] of var 1..n: new_positions;
 
-% Función para calcular la suma de una celda y las celdas adyacentes
+% función para calcular la suma de una celda y las celdas adyacentes
 function var int: sum_neighbors(array[1..n, 1..n] of int: matrix, var int: x, var int: y) =
   sum(
     i in max(1, x-1)..min(n, x+1),
@@ -51,7 +51,23 @@ var int: total_score =
     enterprise[new_positions[i, 1], new_positions[i, 2]] 
   );
 
+% ganancia total antes de las nuevas localizaciones
+var int: existing_score = 
+  sum(i in 1..programs)( 
+    population[positions[i, 1], positions[i, 2]] + 
+    enterprise[positions[i, 1], positions[i, 2]] 
+  );
+
+% ganancia total después de las nuevas localizaciones
+var int: final_score = existing_score + total_score;
+
 solve maximize total_score;
 
-% salida del modelo
-output [ "Nuevas posiciones de las nuevas sedes: ", show(new_positions) ];
+% Salida del modelo
+output [
+  "total_score = \(total_score)\n",
+  "existing_score = \(existing_score)\n",
+  "final_score = \(final_score)\n",
+  "new_positions = \(new_positions)\n",
+  "positions = \(positions)\n"
+];

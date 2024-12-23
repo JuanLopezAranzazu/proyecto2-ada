@@ -4,20 +4,24 @@
 % - Daniel Meléndez Ramirez - 202313024
 % - Diego Alejandro Tolosa Sanchez - 202313023
 
-% datos de entrada
-int: n; % tamaño de las matrices
-array[1..n, 1..n] of int: population; % matriz de segmento de poblacion
-array[1..n, 1..n] of int: enterprise; % matriz de entorno empresarial
+int: n; % Tamaño de las matrices
+array[1..n, 1..n] of int: population; % Matriz de segmento de población
+array[1..n, 1..n] of int: enterprise; % Matriz de entorno empresarial
 
-int: programs; % cantidad de programas que ya existen
-array[1..programs, 1..2] of int: positions; % coordenadas de los programas existentes
+int: programs; % Cantidad de programas que ya existen
+array[1..programs, 1..2] of int: positions; % Coordenadas de los programas existentes
 
-int: new_programs; % cantidad de nuevos programas a ubicar
+int: new_programs; % Cantidad de nuevos programas a ubicar
 
-% coordenadas de los nuevos programas
+% Coordenadas de los nuevos programas
 array[1..new_programs, 1..2] of var 1..n: new_positions;
 
-% función para calcular la suma de una celda y las celdas adyacentes
+% Función para verificar si dos puntos son adyacentes
+function var bool: is_adjacent(var int: x1, var int: y1, var int: x2, var int: y2) =
+  abs(x1 - x2) <= 1 /\ abs(y1 - y2) <= 1;
+
+
+% Función para calcular la suma de una celda y sus adyacentes
 function var int: sum_neighbors(array[1..n, 1..n] of int: matrix, var int: x, var int: y) =
   sum(
     i in max(1, x-1)..min(n, x+1),
@@ -26,50 +30,47 @@ function var int: sum_neighbors(array[1..n, 1..n] of int: matrix, var int: x, va
     matrix[i, j]
   );
 
-% función para verificar si dos puntos son contiguos
-function var bool: is_non_adjacent(var int: x1, var int: y1, var int: x2, var int: y2) =
-  abs(x1 - x2) > 1 \/ abs(y1 - y2) > 1;
 
-
-% restricciones del problema
+% Restricciones
 constraint 
-  % los nuevos programas no pueden ser contiguos a los existentes
+  % Los nuevos programas no pueden ser contiguos a los existentes
   forall(i in 1..new_programs, j in 1..programs) (
-    is_non_adjacent(new_positions[i, 1], new_positions[i, 2],
+    not is_adjacent(new_positions[i, 1], new_positions[i, 2],
                     positions[j, 1], positions[j, 2])
   ) /\
 
-  % los nuevos programas no pueden ser contiguos entre sí
+  % Los nuevos programas no pueden ser contiguos entre sí
   forall(i in 1..new_programs, j in i+1..new_programs) (
-    is_non_adjacent(new_positions[i, 1], new_positions[i, 2],
+    not is_adjacent(new_positions[i, 1], new_positions[i, 2],
                     new_positions[j, 1], new_positions[j, 2])
   ) /\
 
-  % la suma del segmento de población debe ser al menos 25
+  % La suma del segmento de población debe ser al menos 25
   forall(i in 1..new_programs) (
     sum_neighbors(population, new_positions[i, 1], new_positions[i, 2]) >= 25
   ) /\
 
-  % la suma del entorno empresarial debe ser al menos 20
+  % La suma del entorno empresarial debe ser al menos 20
   forall(i in 1..new_programs) (
     sum_neighbors(enterprise, new_positions[i, 1], new_positions[i, 2]) >= 20
   );
 
-% maximizar la suma combinada del segmento de poblacion y entorno empresarial
+
+% Maximizar la suma combinada del segmento de población y entorno empresarial
 var int: total_score = 
   sum(i in 1..new_programs)( 
     population[new_positions[i, 1], new_positions[i, 2]] + 
     enterprise[new_positions[i, 1], new_positions[i, 2]] 
   );
 
-% ganancia total antes de las nuevas localizaciones
+% Ganancia total antes de las nuevas localizaciones
 var int: existing_score = 
   sum(i in 1..programs)( 
     population[positions[i, 1], positions[i, 2]] + 
     enterprise[positions[i, 1], positions[i, 2]] 
   );
 
-% ganancia total después de las nuevas localizaciones
+% Ganancia total después de las nuevas localizaciones
 var int: final_score = existing_score + total_score;
 
 solve maximize total_score;

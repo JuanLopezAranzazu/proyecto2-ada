@@ -1,0 +1,20 @@
+
+Descargar e instalar MiniZinc
+
+https://www.minizinc.org/
+
+Copiar la ruta en las variables de entorno
+
+C:\Program Files\MiniZinc
+
+Probar el comando:
+
+minizinc --version
+
+Instalar MiniZinc para Python
+
+pip install minizinc
+
+Ejemplos MiniZinc y Python
+
+https://python.minizinc.dev/en/latest/getting_started.html#installation

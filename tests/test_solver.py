@@ -1,3 +1,9 @@
+# Integrantes del grupo:
+# - Victor Manuel Álzate Morales - 202313022
+# - Juan Esteban López Aránzazu - 202313026
+# - Daniel Meléndez Ramirez - 202313024
+# - Diego Alejandro Tolosa Sanchez - 202313023
+
 import unittest
 from utils.solver import solve_minizinc_problem
 from utils.mzn_parser import extract_list, get_coordinates
@@ -148,6 +154,7 @@ class TestSolver(unittest.TestCase):
 
           result_str = str(result)
 
+          # extraer los resultados
           new_positions = get_coordinates(extract_list("new_positions", result_str))
 
           if new_positions is None:

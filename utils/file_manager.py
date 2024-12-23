@@ -1,4 +1,8 @@
-# leer los datos y guardar los resultados en archivos de texto
+# Integrantes del grupo:
+# - Victor Manuel Álzate Morales - 202313022
+# - Juan Esteban López Aránzazu - 202313026
+# - Daniel Meléndez Ramirez - 202313024
+# - Diego Alejandro Tolosa Sanchez - 202313023
 
 def load_data_from_file(file_path):
   """

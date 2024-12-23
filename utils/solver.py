@@ -1,3 +1,9 @@
+# Integrantes del grupo:
+# - Victor Manuel Álzate Morales - 202313022
+# - Juan Esteban López Aránzazu - 202313026
+# - Daniel Meléndez Ramirez - 202313024
+# - Diego Alejandro Tolosa Sanchez - 202313023
+
 from minizinc import Model, Solver, Instance
 
 def solve_minizinc_problem(solver_name, model_path, n, population, enterprise, programs, positions, new_programs):

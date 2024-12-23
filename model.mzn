@@ -1,3 +1,9 @@
+% Integrantes del grupo:
+% - Victor Manuel Álzate Morales - 202313022
+% - Juan Esteban López Aránzazu - 202313026
+% - Daniel Meléndez Ramirez - 202313024
+% - Diego Alejandro Tolosa Sanchez - 202313023
+
 % datos de entrada
 int: n; % tamaño de las matrices
 array[1..n, 1..n] of int: population; % matriz de segmento de poblacion
@@ -20,18 +26,23 @@ function var int: sum_neighbors(array[1..n, 1..n] of int: matrix, var int: x, va
     matrix[i, j]
   );
 
+% función para verificar si dos puntos son contiguos
+function var bool: is_non_adjacent(var int: x1, var int: y1, var int: x2, var int: y2) =
+  abs(x1 - x2) > 1 \/ abs(y1 - y2) > 1;
+
+
 % restricciones del problema
 constraint 
   % los nuevos programas no pueden ser contiguos a los existentes
   forall(i in 1..new_programs, j in 1..programs) (
-    abs(new_positions[i, 1] - positions[j, 1]) > 1 \/ 
-    abs(new_positions[i, 2] - positions[j, 2]) > 1
+    is_non_adjacent(new_positions[i, 1], new_positions[i, 2],
+                    positions[j, 1], positions[j, 2])
   ) /\
 
   % los nuevos programas no pueden ser contiguos entre sí
   forall(i in 1..new_programs, j in i+1..new_programs) (
-    abs(new_positions[i, 1] - new_positions[j, 1]) > 1 \/ 
-    abs(new_positions[i, 2] - new_positions[j, 2]) > 1
+    is_non_adjacent(new_positions[i, 1], new_positions[i, 2],
+                    new_positions[j, 1], new_positions[j, 2])
   ) /\
 
   % la suma del segmento de población debe ser al menos 25

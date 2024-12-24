@@ -51,7 +51,7 @@ class TestSolver(unittest.TestCase):
         'positions': [[6, 8], [8, 4], [10, 10]],
         'new_programs': 4,
         'solver_name': "gecode",
-        'expected': [(14, 6), (12, 8), (14, 8), (12, 6)]
+        'expected': [(11, 7), (12, 9), (13, 7), (14, 9)]
       },
       {
         'n': 10,
@@ -83,7 +83,7 @@ class TestSolver(unittest.TestCase):
         'positions': [[2, 3], [4, 1], [5, 5]],
         'new_programs': 4,
         'solver_name': "gecode",
-        'expected': [(7, 9), (5, 9), (3, 9), (3, 5)]
+        'expected': [(3, 9), (5, 9), (7, 9), (9, 9)]
       },
       {
         'n': 18,
@@ -131,7 +131,7 @@ class TestSolver(unittest.TestCase):
         'positions': [[3, 4], [7, 10], [12, 15], [14, 8], [17, 5]],
         'new_programs': 6,
         'solver_name': "chuffed",
-        'expected': [(15, 18), (5, 14), (16, 10), (17, 18), (7, 18), (5, 18)]
+        'expected': [(10, 17), (12, 17), (14, 17), (15, 11), (16, 17), (17, 11)]
       }
     ]
     

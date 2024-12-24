@@ -1,3 +1,4 @@
+Manual de instalación MiniZinc con Python
 
 Descargar e instalar MiniZinc
 
@@ -18,3 +19,23 @@ pip install minizinc
 Ejemplos MiniZinc y Python
 
 https://python.minizinc.dev/en/latest/getting_started.html#installation
+
+***********************************************************************************
+
+Información general del proyecto
+
+Hay 3 solver para seleccionar en la interfaz grafica
+
+- gecode
+- chuffed
+- cp-sat
+
+El rendimiento de los solver varia dependiendo de los datos de entrada y la optimización del modelo
+
+Al ejecutar el modelo es posible que no encuentre una solución al problema, en ese caso mostrara un mensaje "No encontró Solución"
+
+Es probable que existan diferentes soluciones al problema esto depende de cada solver
+
+Al encontrar una solución, los resultados se guardan en un archivo de texto "results.txt"
+
+

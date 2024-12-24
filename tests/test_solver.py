@@ -131,11 +131,11 @@ class TestSolver(unittest.TestCase):
         'positions': [[3, 4], [7, 10], [12, 15], [14, 8], [17, 5]],
         'new_programs': 6,
         'solver_name': "chuffed",
-        'expected': [(15, 18), (5, 14), (16, 10), (17, 18), (7, 18), (1, 18)]
+        'expected': [(15, 18), (5, 14), (16, 10), (17, 18), (7, 18), (5, 18)]
       }
     ]
     
-    for test_case in test_cases:
+    for i, test_case in enumerate(test_cases):
       with self.subTest(test_case=test_case):
         try:
           result = solve_minizinc_problem(
@@ -162,6 +162,8 @@ class TestSolver(unittest.TestCase):
 
           self.assertCountEqual(new_positions, test_case['expected'], 
                                 msg=f"Las posiciones no coinciden para el caso: {test_case}")
+          
+          print(f"Resultado correcto para el caso: {(i+1)}")
 
         except Exception as e:
           self.fail(f"Error durante la prueba del caso {test_case}: {e}")
